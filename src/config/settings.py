@@ -5,7 +5,7 @@ Loads environment variables and provides application-wide settings.
 import os
 from pathlib import Path
 from typing import Optional
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -32,9 +32,10 @@ class Settings(BaseSettings):
     project_root: Path = Path(__file__).parent.parent.parent
     datasets_dir: Path = project_root / "datasets"
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8"
+    )
 
     def validate_api_key(self) -> None:
         """Validate that the Gemini API key is set."""

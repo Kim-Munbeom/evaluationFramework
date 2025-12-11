@@ -17,3 +17,6 @@ _plan/
 
 # Reports
 reports/
+
+# DeepEval telemetry
+.deepeval/

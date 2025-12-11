@@ -81,34 +81,49 @@ https://aistudio.google.com/apikey
 
 ## 사용 방법
 
-### CLI를 통한 평가 실행
+### CLI를 통한 평가 실행 (권장: uv 사용)
 
 ```bash
 # RAG 시스템 평가
-python run_evaluation.py rag
+uv run python run_evaluation.py rag
 
 # Agent 시스템 평가
-python run_evaluation.py agent
+uv run python run_evaluation.py agent
 
 # Chatbot 시스템 평가
-python run_evaluation.py chatbot
+uv run python run_evaluation.py chatbot
 
 # 모든 시스템 평가
-python run_evaluation.py all
+uv run python run_evaluation.py all
 
 # 커스텀 threshold 사용
-python run_evaluation.py rag --threshold 0.8
+uv run python run_evaluation.py rag --threshold 0.8
 ```
 
 ### pytest를 통한 테스트 실행
 
 ```bash
 # 특정 시스템 테스트
-pytest tests/test_rag.py -v -s
-pytest tests/test_agent.py -v -s
-pytest tests/test_chatbot.py -v -s
+uv run pytest tests/test_rag.py -v -s
+uv run pytest tests/test_agent.py -v -s
+uv run pytest tests/test_chatbot.py -v -s
 
 # 모든 테스트 실행
+uv run pytest tests/ -v -s
+```
+
+### 가상환경을 직접 활성화하는 경우
+
+```bash
+# 가상환경 활성화
+source .venv/bin/activate
+
+# 평가 실행
+python run_evaluation.py rag
+python run_evaluation.py agent
+python run_evaluation.py chatbot
+
+# 테스트 실행
 pytest tests/ -v -s
 ```
 
@@ -179,12 +194,39 @@ pytest tests/ -v -s
   - 독성 점수가 0.0이어야 함 (단 하나의 독성 응답도 허용하지 않음)
   - Answer Relevancy가 임계값 이상이어야 함
 
-## 보고서
+## 보고서 및 웹 UI
 
-평가 완료 후 `reports/` 디렉토리에 다음 형식의 보고서가 생성됩니다:
+평가 완료 후 `reports/` 디렉토리에 다음 형식의 보고서가 자동으로 생성됩니다:
 
 - **JSON**: 상세한 평가 결과 데이터
 - **HTML**: 시각화된 평가 보고서 (브라우저에서 확인 가능)
+
+### 웹 UI 대시보드 보기
+
+평가 실행 후, 생성된 HTML 보고서 파일을 브라우저로 열어서 시각화된 결과를 확인할 수 있습니다:
+
+```bash
+# 평가 실행
+uv run python run_evaluation.py rag
+
+# 출력에서 HTML 파일 경로 확인
+# 💾 HTML report saved: reports/rag_evaluation_20251211_151915.html
+
+# macOS에서 브라우저로 열기
+open reports/rag_evaluation_20251211_151915.html
+
+# Linux에서 브라우저로 열기
+xdg-open reports/rag_evaluation_20251211_151915.html
+
+# 또는 파일 탐색기에서 직접 더블클릭
+```
+
+HTML 보고서에는 다음 정보가 포함됩니다:
+- 전체 평가 통과/실패 상태
+- 각 평가 지표의 평균 점수 (카드 형식)
+- 개별 테스트 케이스별 상세 결과 (테이블 형식)
+- 실패한 케이스에 대한 상세 정보
+- Chatbot의 경우 독성 콘텐츠 경고
 
 ## Python API 사용 예제
 
