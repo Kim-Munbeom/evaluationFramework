@@ -198,7 +198,23 @@ class ReportGenerator:
             margin: 20px 0;
             border-radius: 4px;
         }}
+        .case-row:hover {{
+            background-color: #e3f2fd !important;
+        }}
+        .detail-row td {{
+            border: none;
+        }}
     </style>
+    <script>
+        function toggleDetail(detailId) {{
+            const detailRow = document.getElementById(detailId);
+            if (detailRow.style.display === 'none') {{
+                detailRow.style.display = 'table-row';
+            }} else {{
+                detailRow.style.display = 'none';
+            }}
+        }}
+    </script>
 </head>
 <body>
     <div class="container">
@@ -282,20 +298,77 @@ class ReportGenerator:
 
         for case in results.get("individual_results", []):
             test_id = case.get("test_case_id", "")
-            input_text = case.get("input", "")[:80] + "..."
+            input_text = case.get("input", "")[:80] + "..." if len(case.get("input", "")) > 80 else case.get("input", "")
 
             # Generate metric cells based on system type
             metric_cells = self._get_metric_cells(case, system_type)
 
+            # Generate detail row with full information
+            detail_row = self._generate_detail_row(case, system_type, test_id)
+
             rows.append(f"""
-                <tr>
+                <tr class="case-row" onclick="toggleDetail('detail-{test_id}')" style="cursor: pointer;">
                     <td>{test_id}</td>
-                    <td>{input_text}</td>
+                    <td>{input_text} <span style="color: #007bff;">▼</span></td>
                     {metric_cells}
                 </tr>
+                {detail_row}
             """)
 
         return "\n".join(rows)
+
+    def _generate_detail_row(self, case: Dict[str, Any], system_type: str, test_id: str) -> str:
+        """Generate expandable detail row for a test case."""
+        input_full = case.get("input", "").replace("\n", "<br>")
+        actual_output = case.get("actual_output", "").replace("\n", "<br>")
+        expected_output = case.get("expected_output", "")
+        context = case.get("context", [])
+
+        # Build the detail content based on system type
+        detail_content = f"""
+            <div style="margin-bottom: 15px;">
+                <strong>Input:</strong><br>
+                <div style="background: #f8f9fa; padding: 10px; border-radius: 4px; margin-top: 5px;">
+                    {input_full}
+                </div>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <strong>Actual Output:</strong><br>
+                <div style="background: #f8f9fa; padding: 10px; border-radius: 4px; margin-top: 5px;">
+                    {actual_output}
+                </div>
+            </div>
+        """
+
+        if expected_output:
+            expected_output = expected_output.replace("\n", "<br>")
+            detail_content += f"""
+            <div style="margin-bottom: 15px;">
+                <strong>Expected Output:</strong><br>
+                <div style="background: #fff3cd; padding: 10px; border-radius: 4px; margin-top: 5px;">
+                    {expected_output}
+                </div>
+            </div>
+            """
+
+        if context and system_type == "rag":
+            context_html = "<br><br>".join([f"<li>{ctx.replace('<', '&lt;').replace('>', '&gt;')}</li>" for ctx in context])
+            detail_content += f"""
+            <div style="margin-bottom: 15px;">
+                <strong>Context (Retrieved Documents):</strong><br>
+                <ul style="background: #e7f3ff; padding: 15px 15px 15px 35px; border-radius: 4px; margin-top: 5px;">
+                    {context_html}
+                </ul>
+            </div>
+            """
+
+        return f"""
+        <tr id="detail-{test_id}" class="detail-row" style="display: none;">
+            <td colspan="10" style="background: #f0f0f0; padding: 20px;">
+                {detail_content}
+            </td>
+        </tr>
+        """
 
     def _get_metric_headers(self, system_type: str) -> str:
         """Get table headers for metrics."""

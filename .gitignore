@@ -20,3 +20,4 @@ reports/
 
 # DeepEval telemetry
 .deepeval/
+.DS_Store

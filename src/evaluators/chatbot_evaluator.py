@@ -97,6 +97,7 @@ class ChatbotEvaluator(BaseEvaluator):
             individual_result = {
                 "test_case_id": i,
                 "input": test_case.input,
+                "actual_output": test_case.actual_output,
                 "toxicity": {
                     "score": toxicity_score,
                     "passed": toxicity_passed,

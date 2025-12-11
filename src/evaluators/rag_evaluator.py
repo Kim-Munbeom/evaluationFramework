@@ -91,6 +91,9 @@ class RAGEvaluator(BaseEvaluator):
             individual_result = {
                 "test_case_id": i,
                 "input": test_case.input,
+                "actual_output": test_case.actual_output,
+                "expected_output": test_case.expected_output,
+                "context": test_case.context,
                 "faithfulness": {
                     "score": faithfulness_score,
                     "passed": self.check_pass_threshold(faithfulness_score),
