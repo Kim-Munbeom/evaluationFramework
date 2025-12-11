@@ -1,0 +1,13 @@
+[project]
+name = "evaluationframework"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "deepeval>=3.7.5",
+    "google-generativeai>=0.8.5",
+    "pydantic>=2.12.5",
+    "pytest>=9.0.2",
+    "python-dotenv>=1.2.1",
+]
