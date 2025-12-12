@@ -1,5 +1,5 @@
 """
-Base evaluator class for LLM system evaluation.
+LLM 시스템 평가를 위한 기본 평가자 클래스
 """
 from typing import List, Dict, Any, Optional
 from abc import ABC, abstractmethod
@@ -9,7 +9,7 @@ from google.genai import types
 
 
 class GeminiModel(DeepEvalBaseLLM):
-    """Gemini model wrapper for DeepEval."""
+    """DeepEval을 위한 Gemini 모델 래퍼"""
 
     def __init__(
         self,
@@ -17,28 +17,28 @@ class GeminiModel(DeepEvalBaseLLM):
         api_key: Optional[str] = None,
     ):
         """
-        Initialize Gemini model.
+        Gemini 모델을 초기화합니다.
 
         Args:
-            model: Gemini model name
-            api_key: Google API key
+            model: Gemini 모델 이름
+            api_key: Google API 키
         """
         self.model_name = model
         self.client = genai.Client(api_key=api_key)
 
     def load_model(self):
-        """Load the model (not needed for API-based models)."""
+        """모델을 로드합니다 (API 기반 모델에는 필요 없음)."""
         return self.client
 
     def generate(self, prompt: str) -> str:
         """
-        Generate a response from the model.
+        모델로부터 응답을 생성합니다.
 
         Args:
-            prompt: Input prompt
+            prompt: 입력 프롬프트
 
         Returns:
-            Generated text response
+            생성된 텍스트 응답
         """
         response = self.client.models.generate_content(
             model=self.model_name,
@@ -48,13 +48,13 @@ class GeminiModel(DeepEvalBaseLLM):
 
     async def a_generate(self, prompt: str) -> str:
         """
-        Asynchronously generate a response from the model.
+        모델로부터 비동기적으로 응답을 생성합니다.
 
         Args:
-            prompt: Input prompt
+            prompt: 입력 프롬프트
 
         Returns:
-            Generated text response
+            생성된 텍스트 응답
         """
         response = await self.client.aio.models.generate_content(
             model=self.model_name,
@@ -63,12 +63,12 @@ class GeminiModel(DeepEvalBaseLLM):
         return response.text
 
     def get_model_name(self) -> str:
-        """Get the model name."""
+        """모델 이름을 반환합니다."""
         return self.model_name
 
 
 class BaseEvaluator(ABC):
-    """Base class for all evaluators."""
+    """모든 평가자의 기본 클래스"""
 
     def __init__(
         self,
@@ -76,11 +76,11 @@ class BaseEvaluator(ABC):
         threshold: float = 0.7,
     ):
         """
-        Initialize the base evaluator.
+        기본 평가자를 초기화합니다.
 
         Args:
-            model: DeepEval model instance
-            threshold: Minimum score threshold for passing
+            model: DeepEval 모델 인스턴스
+            threshold: 통과 최소 점수 임계값
         """
         self.model = model
         self.threshold = threshold
@@ -88,25 +88,25 @@ class BaseEvaluator(ABC):
     @abstractmethod
     def evaluate(self, test_cases: List[Any]) -> Dict[str, Any]:
         """
-        Evaluate test cases.
+        테스트 케이스를 평가합니다.
 
         Args:
-            test_cases: List of test case objects
+            test_cases: 테스트 케이스 객체 리스트
 
         Returns:
-            Dictionary containing evaluation results
+            평가 결과를 담고 있는 딕셔너리
         """
         pass
 
     def calculate_average_score(self, scores: List[float]) -> float:
         """
-        Calculate average score from a list of scores.
+        점수 리스트로부터 평균 점수를 계산합니다.
 
         Args:
-            scores: List of metric scores
+            scores: 메트릭 점수 리스트
 
         Returns:
-            Average score
+            평균 점수
         """
         if not scores:
             return 0.0
@@ -114,12 +114,12 @@ class BaseEvaluator(ABC):
 
     def check_pass_threshold(self, score: float) -> bool:
         """
-        Check if a score passes the threshold.
+        점수가 임계값을 통과하는지 확인합니다.
 
         Args:
-            score: Score to check
+            score: 확인할 점수
 
         Returns:
-            True if score >= threshold
+            점수가 임계값 이상이면 True
         """
         return score >= self.threshold

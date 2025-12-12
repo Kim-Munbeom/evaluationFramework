@@ -1,6 +1,6 @@
 """
-Agent system evaluator.
-Evaluates Agent systems using Correctness and Answer Relevancy metrics.
+Agent 시스템 평가자
+Correctness와 Answer Relevancy 메트릭을 사용하여 Agent 시스템을 평가합니다.
 """
 from typing import List, Dict, Any
 from deepeval.metrics import (
@@ -12,7 +12,7 @@ from .base import BaseEvaluator, DeepEvalBaseLLM
 
 
 class AgentEvaluator(BaseEvaluator):
-    """Evaluator for Agent systems."""
+    """Agent 시스템 평가자"""
 
     def __init__(
         self,
@@ -20,18 +20,18 @@ class AgentEvaluator(BaseEvaluator):
         threshold: float = 0.7,
     ):
         """
-        Initialize Agent evaluator.
+        Agent 평가자를 초기화합니다.
 
         Args:
-            model: DeepEval model instance
-            threshold: Minimum score threshold for passing
+            model: DeepEval 모델 인스턴스
+            threshold: 통과 최소 점수 임계값
         """
         super().__init__(model, threshold)
 
-        # Initialize Correctness metric using G-Eval
+        # G-Eval을 사용하여 Correctness 메트릭 초기화
         self.correctness_metric = GEval(
             name="Correctness",
-            criteria="Determine whether the actual output is correct compared to the expected output.",
+            criteria="실제 출력이 예상 출력과 비교하여 정확한지 판단합니다.",
             evaluation_params=[
                 LLMTestCaseParams.INPUT,
                 LLMTestCaseParams.ACTUAL_OUTPUT,
@@ -41,7 +41,7 @@ class AgentEvaluator(BaseEvaluator):
             model=model,
         )
 
-        # Initialize Answer Relevancy metric
+        # Answer Relevancy 메트릭 초기화
         self.answer_relevancy_metric = AnswerRelevancyMetric(
             threshold=threshold,
             model=model,
@@ -49,13 +49,13 @@ class AgentEvaluator(BaseEvaluator):
 
     def evaluate(self, test_cases: List[Any]) -> Dict[str, Any]:
         """
-        Evaluate Agent test cases.
+        Agent 테스트 케이스를 평가합니다.
 
         Args:
-            test_cases: List of AgentTestCase objects
+            test_cases: AgentTestCase 객체 리스트
 
         Returns:
-            Dictionary containing evaluation results with scores and pass/fail status
+            점수와 통과/실패 상태를 포함하는 평가 결과 딕셔너리
         """
         results = {
             "total_cases": len(test_cases),
@@ -65,26 +65,26 @@ class AgentEvaluator(BaseEvaluator):
         }
 
         for i, test_case in enumerate(test_cases):
-            # Convert to DeepEval test case format
+            # DeepEval 테스트 케이스 형식으로 변환
             llm_test_case = LLMTestCase(
                 input=test_case.input,
                 actual_output=test_case.actual_output,
                 expected_output=test_case.expected_output,
             )
 
-            # Evaluate Correctness
+            # Correctness 평가
             self.correctness_metric.measure(llm_test_case)
             correctness_score = self.correctness_metric.score
 
-            # Evaluate Answer Relevancy
+            # Answer Relevancy 평가
             self.answer_relevancy_metric.measure(llm_test_case)
             answer_relevancy_score = self.answer_relevancy_metric.score
 
-            # Store scores
+            # 점수 저장
             results["correctness_scores"].append(correctness_score)
             results["answer_relevancy_scores"].append(answer_relevancy_score)
 
-            # Individual result
+            # 개별 결과
             individual_result = {
                 "test_case_id": i,
                 "input": test_case.input,
@@ -103,7 +103,7 @@ class AgentEvaluator(BaseEvaluator):
             }
             results["individual_results"].append(individual_result)
 
-        # Calculate averages
+        # 평균 계산
         results["average_correctness"] = self.calculate_average_score(
             results["correctness_scores"]
         )
@@ -111,14 +111,14 @@ class AgentEvaluator(BaseEvaluator):
             results["answer_relevancy_scores"]
         )
 
-        # Overall average
+        # 전체 평균
         all_scores = (
             results["correctness_scores"]
             + results["answer_relevancy_scores"]
         )
         results["overall_average"] = self.calculate_average_score(all_scores)
 
-        # Pass/fail determination
+        # 통과/실패 판정
         results["passed"] = (
             results["overall_average"] >= self.threshold
             and results["average_correctness"] >= self.threshold
@@ -129,13 +129,13 @@ class AgentEvaluator(BaseEvaluator):
 
     def generate_report(self, results: Dict[str, Any]) -> str:
         """
-        Generate a human-readable evaluation report.
+        사람이 읽을 수 있는 평가 보고서를 생성합니다.
 
         Args:
-            results: Evaluation results dictionary
+            results: 평가 결과 딕셔너리
 
         Returns:
-            Formatted report string
+            포맷된 보고서 문자열
         """
         report = []
         report.append("=" * 60)
